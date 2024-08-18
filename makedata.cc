@@ -1,4 +1,4 @@
-#include "ComPlayerData.hh"
+#include "ComPlayer.cc"
 #include <fstream>
 #include <iostream>
 
@@ -6,11 +6,11 @@ using namespace std;
 
 ComPlayer cpd;
 
-int main() {
-  // fstream file;
-  // file.open("./data", ios::binary);
-  ofstream fout("./data");
-  if (fout.is_open())
+int main(int argv, char **argc) {
+  ofstream fout(argc[1]);
+  if (fout.is_open()) {
+    cout << "HI\n";
     fout << cpd;
+  }
   return 0;
 }

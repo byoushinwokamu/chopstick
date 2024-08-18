@@ -1,11 +1,14 @@
 #include "ManPlayer.hh"
 
-Action ManPlayer::play(Status st) {
+ManPlayer::~ManPlayer() {}
+
+Action ManPlayer::play(Status &st) {
   Action act;
   char actstr[4];
   bool validinput = false;
+  cout << '\n';
   if (prevturn == st.turn)
-    cout << "\n*****Invalid action*****\n\n";
+    cout << "*****Invalid action*****\n";
 
   while (!validinput) {
     validinput = true;

@@ -24,9 +24,11 @@ int main(int argv, char **argc) {
   string str(argc[1]);
   int gamecount = stoi(str);
   int wincount[3] = {0, 0, 0};
-  bool printTurn = (strcmp(argc[4], "-p") ? false : true);
+  bool printTurn = argv == 5 ? (strcmp(argc[4], "-p") ? false : true) : false;
+  ChopstickGame game;
+
   for (int i = 0; i < gamecount; i++) {
-    ChopstickGame game;
+    game.turn = 0;
     if (!strcmp(argc[2], "-h"))
       game.p1 = new ManPlayer();
     else
@@ -37,6 +39,7 @@ int main(int argv, char **argc) {
       game.p2 = new ComPlayer(argc[3], printTurn);
     wincount[game.startGame()]++;
   }
+
   cout << '\n';
   cout << "---- " << gamecount << " times play result ----\n";
   cout << "Player 1 won " << wincount[1] << " times\n";
@@ -72,14 +75,34 @@ int ChopstickGame::startGame() {
     if (act.action == SPLIT) {
       p1->splitHand(act.splitleft);
     }
+    if (act.action == SURRENDER) {
+      // cout << "Game terminated by surrender\n";
+      p2->victory();
+      p1->defeat();
+      delete p1;
+      delete p2;
+      return turn % 2 + 1;
+    }
 
     // end phase
-    if (!p2->isAlive())
+    if (!p2->isAlive()) {
+      // cout << "Game terminated by attack\n";
+      p1->victory();
+      p2->defeat();
+      delete p1;
+      delete p2;
       return (turn + 1) % 2 + 1;
+    }
     temp = p1;
     p1 = p2;
     p2 = temp;
     playisvalid = false;
+
+    if (turn > 100) {
+      delete p1;
+      delete p2;
+      return 0;
+    }
   }
 }
 
@@ -95,6 +118,10 @@ bool ChopstickGame::validAction(Action a) {
       return false;
     if (a.splitleft * 2 > sumofhand) // left is larger
       return false;
+    if (sumofhand - a.splitleft > 4) // right is over 4
+      return false;
+  } else if (a.action == SURRENDER) { // case of surrender
+    return true;
   }
   return true;
 }

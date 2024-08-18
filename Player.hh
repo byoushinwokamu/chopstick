@@ -3,10 +3,11 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <random>
 
 using namespace std;
 
-typedef enum { ATTACK, SPLIT } ActionType;
+typedef enum { ATTACK, SPLIT, SURRENDER } ActionType;
 typedef enum { LEFT, RIGHT } Direction;
 
 typedef struct {
@@ -32,7 +33,11 @@ private:
     }
   }
 
+protected:
+  int prevturn = 0;
+
 public:
+  virtual ~Player() {}
   int getHand(Direction dir) { return hand[dir]; }
   void addHand(Direction dir, int dam) {
     hand[dir] += dam;
@@ -45,6 +50,8 @@ public:
     hand[1] = tot - lefthand;
   }
   bool isAlive() { return hand[0] + hand[1] != 0; }
-  virtual Action play(Status st) = 0;
+  virtual Action play(Status &st) = 0;
+  void victory() {}
+  void defeat() {}
 };
 #endif
