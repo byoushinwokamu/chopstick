@@ -4,13 +4,12 @@
 class ChopstickGame {
 public:
   int turn = 0;
+  long long totturn = 0;
   Player *p1;
   Player *p2;
   int startGame();
   bool validAction(Action a);
 };
-
-long long totturn = 0;
 
 int main(int argv, char **argc) {
   if (argv < 4) {
@@ -24,29 +23,32 @@ int main(int argv, char **argc) {
     return 0;
   }
   string str(argc[1]);
+  Player *com1, *com2;
   int gamecount = stoi(str);
   int wincount[3] = {0, 0, 0};
-  bool printTurn = argv == 5;
+  bool printTurn = (argv == 5);
+
+  if (strcmp(argc[2], "-h"))
+    com1 = new ComPlayer(argc[2], printTurn);
+  if (strcmp(argc[3], "-h"))
+    com2 = new ComPlayer(argc[3], printTurn);
 
   for (int i = 0; i < gamecount; i++) {
     ChopstickGame game;
-    //cout << "Game " << i << '\n';
-    game.turn = 0;
-    if (printTurn)
-      cout << "PRINTTURN ENABLE\n";
+    // cout << "Game " << i << '\n';
     if (!strcmp(argc[2], "-h"))
       game.p1 = new ManPlayer();
     else
-      game.p1 = new ComPlayer(argc[2], printTurn);
+      game.p1 = com1;
     if (!strcmp(argc[3], "-h"))
       game.p2 = new ManPlayer();
     else
-      game.p2 = new ComPlayer(argc[3], printTurn);
+      game.p2 = com2;
     wincount[game.startGame()]++;
-    if((i+1)%10000==0){
-        cout<<"Game "<< i+1 <<'\n';
-        cout<<"Avg turn "<< totturn/10000.0<<'\n';
-        totturn=0;
+    if ((i + 1) % 10000 == 0) {
+      cout << "Game " << i + 1 << '\n';
+      cout << "Avg turn " << game.totturn / 10000.0 << '\n';
+      game.totturn = 0;
     }
   }
 
@@ -63,7 +65,7 @@ int ChopstickGame::startGame() {
   Player *temp;
   Status st;
   Action act;
-  bool playisvalid = false;
+  turn = 0;
   while (true) {
     // init phase
     st.turn = ++turn;
@@ -96,7 +98,7 @@ int ChopstickGame::startGame() {
 
     // end phase
     if (!p2->isAlive()) {
-      //cout << "GAME SET IN " << turn << "TURNS\n";
+      // cout << "GAME SET IN " << turn << "TURNS\n";
       totturn += turn;
       p1->victory();
       p2->defeat();
@@ -107,7 +109,6 @@ int ChopstickGame::startGame() {
     temp = p1;
     p1 = p2;
     p2 = temp;
-    playisvalid = false;
 
     if (turn > MAXTURN * 2) {
       delete p1;
