@@ -26,27 +26,32 @@ int main(int argv, char **argc) {
   string str(argc[1]);
   int gamecount = stoi(str);
   int wincount[3] = {0, 0, 0};
-  bool printTurn = argv == 5;
+  bool printTurn = (argv == 5);
+  bool complay1 = false, complay2 = false;
+  ChopstickGame game;
+  Player *com1, *com2;
+
+  if (strcmp(argc[2], "-h"))
+    com1 = new ComPlayer(argc[2], printTurn), complay1 = true;
+  if (strcmp(argc[3], "-h"))
+    com2 = new ComPlayer(argc[3], printTurn), complay2 = true;
 
   for (int i = 0; i < gamecount; i++) {
-    ChopstickGame game;
-    //cout << "Game " << i << '\n';
-    game.turn = 0;
     if (printTurn)
-      cout << "PRINTTURN ENABLE\n";
-    if (!strcmp(argc[2], "-h"))
+      cout << "Game " << i << '\n';
+    if (!complay1)
       game.p1 = new ManPlayer();
     else
-      game.p1 = new ComPlayer(argc[2], printTurn);
-    if (!strcmp(argc[3], "-h"))
+      game.p1 = com1;
+    if (!complay2)
       game.p2 = new ManPlayer();
     else
-      game.p2 = new ComPlayer(argc[3], printTurn);
+      game.p2 = com2;
     wincount[game.startGame()]++;
-    if((i+1)%10000==0){
-        cout<<"Game "<< i+1 <<'\n';
-        cout<<"Avg turn "<< totturn/10000.0<<'\n';
-        totturn=0;
+    if ((i + 1) % 10000 == 0) {
+      cout << "Game " << i + 1 << '\n';
+      cout << "Avg turn " << totturn / 10000.0 << '\n';
+      totturn = 0;
     }
   }
 
@@ -64,6 +69,7 @@ int ChopstickGame::startGame() {
   Status st;
   Action act;
   bool playisvalid = false;
+  turn = 0;
   while (true) {
     // init phase
     st.turn = ++turn;
@@ -96,7 +102,7 @@ int ChopstickGame::startGame() {
 
     // end phase
     if (!p2->isAlive()) {
-      //cout << "GAME SET IN " << turn << "TURNS\n";
+      // cout << "GAME SET IN " << turn << "TURNS\n";
       totturn += turn;
       p1->victory();
       p2->defeat();
