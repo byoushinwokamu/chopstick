@@ -10,6 +10,8 @@ public:
   bool validAction(Action a);
 };
 
+long long totturn = 0;
+
 int main(int argv, char **argc) {
   if (argv < 4) {
     cout << "Option: [gamecount] [datafile] [datafile] [printoption]\n";
@@ -24,11 +26,14 @@ int main(int argv, char **argc) {
   string str(argc[1]);
   int gamecount = stoi(str);
   int wincount[3] = {0, 0, 0};
-  bool printTurn = argv == 5 ? (strcmp(argc[4], "-p") ? false : true) : false;
-  ChopstickGame game;
+  bool printTurn = argv == 5;
 
   for (int i = 0; i < gamecount; i++) {
+    ChopstickGame game;
+    //cout << "Game " << i << '\n';
     game.turn = 0;
+    if (printTurn)
+      cout << "PRINTTURN ENABLE\n";
     if (!strcmp(argc[2], "-h"))
       game.p1 = new ManPlayer();
     else
@@ -38,6 +43,11 @@ int main(int argv, char **argc) {
     else
       game.p2 = new ComPlayer(argc[3], printTurn);
     wincount[game.startGame()]++;
+    if((i+1)%10000==0){
+        cout<<"Game "<< i+1 <<'\n';
+        cout<<"Avg turn "<< totturn/10000.0<<'\n';
+        totturn=0;
+    }
   }
 
   cout << '\n';
@@ -76,7 +86,7 @@ int ChopstickGame::startGame() {
       p1->splitHand(act.splitleft);
     }
     if (act.action == SURRENDER) {
-      // cout << "Game terminated by surrender\n";
+      cout << "SURRENDER IN " << turn << "TURNS\n";
       p2->victory();
       p1->defeat();
       delete p1;
@@ -86,7 +96,8 @@ int ChopstickGame::startGame() {
 
     // end phase
     if (!p2->isAlive()) {
-      // cout << "Game terminated by attack\n";
+      //cout << "GAME SET IN " << turn << "TURNS\n";
+      totturn += turn;
       p1->victory();
       p2->defeat();
       delete p1;
@@ -98,7 +109,7 @@ int ChopstickGame::startGame() {
     p2 = temp;
     playisvalid = false;
 
-    if (turn > 100) {
+    if (turn > MAXTURN * 2) {
       delete p1;
       delete p2;
       return 0;

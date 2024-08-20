@@ -4,6 +4,8 @@
 #include <fstream>
 #include <iostream>
 #include <random>
+#include <vector>
+#define MAXTURN 100
 
 using namespace std;
 
@@ -51,7 +53,9 @@ public:
   }
   bool isAlive() { return hand[0] + hand[1] != 0; }
   virtual Action play(Status &st) = 0;
-  void victory() {}
-  void defeat() {}
+  virtual void victory() {}
+  virtual void defeat() {}
+  virtual void draw() {}
 };
+
 #endif

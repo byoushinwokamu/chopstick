@@ -1,11 +1,11 @@
-CC = g++
+CXX = g++
 CFLAGS = -std=c++17 -g
 
 OBJ = game.o ManPlayer.o ComPlayer.o
 TARGET = game 
 
 $(TARGET): $(OBJ)
-	$(CC) $(CFLAGS) -o $@ $(OBJ)
+	$(CXX) $(CFLAGS) -o $@ $(OBJ)
 
 all: $(TARGET)
 

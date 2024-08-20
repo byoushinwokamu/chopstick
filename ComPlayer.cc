@@ -9,17 +9,13 @@ ComPlayer::ComPlayer(char *filename, bool printTurn) {
   }
   fin >> *this;
   this->printTurn = printTurn;
-  // cout << "Load complete from " << filename << endl;
 }
 
 ComPlayer::~ComPlayer() {
-  // cout << "try to save" << datafile << endl;
   ofstream fout(datafile);
-  // cout << "opened file" << endl;
   if (!fout.is_open()) {
     cout << "Failed to save data\n";
   } else {
-    // cout << "Save complete to " << datafile << endl;
     for (int i = 0; i < 196; i++) {
       for (int j = 0; j < 8; j++) {
         fout << this->weight[i].action[j] << ' ';
@@ -35,9 +31,11 @@ Action ComPlayer::play(Status &st) {
   int weIdx = getWeightIndex(st);
   if (printTurn)
     cout << '\n';
-  if (prevturn == st.turn && printTurn) {
-    cout << "$$$$$tried to invalid action$$$$$\n";
+  if (prevturn == st.turn) {
+    if (printTurn)
+      cout << "$$$$$tried to invalid action$$$$$\n";
     weight[weIdx].action[prevAction] = INVALIDACT;
+    turncount--;
   }
 
   if (printTurn) {
@@ -57,19 +55,20 @@ Action ComPlayer::play(Status &st) {
         weight[weIdx].action[i] == DEFEATACT)
       act_prob[i] = (i ? act_prob[i - 1] : 0);
     else
-      act_prob[i] = (i ? act_prob[i - 1] : 0) + 20 + weight[weIdx].action[i];
+      act_prob[i] =
+          (i ? act_prob[i - 1] : 0) + INT32_MAX + weight[weIdx].action[i];
   }
-  // if (act_prob[7] = 0) {
-  //   cout << "I surrender..\n";
+  // if (act_prob[7] == 0) {
+  //   // cout << "I surrender.." << turncount << "\n";
   //   act.action = SURRENDER;
   //   return act;
   // }
 
-  // cout << "GO RANDOM!!\n";
   // get random result
   uniform_int_distribution<long long> dis(0, act_prob[7]);
   long long res = dis(gen);
-  for (int i = 0; i < 8; i++) {
+  int i;
+  for (i = 0; i < 8; i++) {
     if (act_prob[i] > res) {
       act.action = (i < 4 ? ATTACK : SPLIT);
       act.attackfrom = (i / 2 ? LEFT : RIGHT);
@@ -82,5 +81,25 @@ Action ComPlayer::play(Status &st) {
 
   // return act
   prevturn = st.turn;
+  tlog[turncount++] = {weIdx, i};
   return act;
 }
+
+int ComPlayer::getWeightIndex(Status &st) {
+  return conversion[st.myHand[LEFT]][st.myHand[RIGHT]] +
+         conversion[st.enemyHand[LEFT]][st.enemyHand[RIGHT]] * 14;
+}
+
+void ComPlayer::victory() {
+  for (int i = 0; i < turncount; i++) {
+    weight[tlog[i].stat].action[tlog[i].acti] += 2000 * i;
+  }
+}
+
+void ComPlayer::defeat() {
+  for (int i = 0; i < turncount; i++) {
+    weight[tlog[i].stat].action[tlog[i].acti] -= 2000 * i;
+  }
+}
+
+void ComPlayer::draw() {}
