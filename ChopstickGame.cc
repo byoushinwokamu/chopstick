@@ -1,64 +1,4 @@
-#include "ComPlayer.hh"
-#include "ManPlayer.hh"
-
-class ChopstickGame {
-public:
-  int turn = 0;
-  long long totturn = 0;
-  Player *p1;
-  Player *p2;
-  int startGame();
-  bool validAction(Action a);
-};
-
-int main(int argv, char **argc) {
-  if (argv < 4) {
-    cout << "Option: [gamecount] [datafile] [datafile] [printoption]\n";
-    cout << "If you want to play directly, -h instead of "
-            "[datafile].\n";
-    cout << "If you want to robot's turn message, input -p on "
-            "[printoption].\n";
-    cout << "The order of game progression follows the order of "
-            "the options.\n";
-    return 0;
-  }
-  string str(argc[1]);
-  Player *com1, *com2;
-  int gamecount = stoi(str);
-  int wincount[3] = {0, 0, 0};
-  bool printTurn = (argv == 5);
-
-  if (strcmp(argc[2], "-h"))
-    com1 = new ComPlayer(argc[2], printTurn);
-  if (strcmp(argc[3], "-h"))
-    com2 = new ComPlayer(argc[3], printTurn);
-
-  for (int i = 0; i < gamecount; i++) {
-    ChopstickGame game;
-    // cout << "Game " << i << '\n';
-    if (!strcmp(argc[2], "-h"))
-      game.p1 = new ManPlayer();
-    else
-      game.p1 = com1;
-    if (!strcmp(argc[3], "-h"))
-      game.p2 = new ManPlayer();
-    else
-      game.p2 = com2;
-    wincount[game.startGame()]++;
-    if ((i + 1) % 10000 == 0) {
-      cout << "Game " << i + 1 << '\n';
-      cout << "Avg turn " << game.totturn / 10000.0 << '\n';
-      game.totturn = 0;
-    }
-  }
-
-  cout << '\n';
-  cout << "---- " << gamecount << " times play result ----\n";
-  cout << "Player 1 won " << wincount[1] << " times\n";
-  cout << "Player 2 won " << wincount[2] << " times\n";
-
-  return 0;
-}
+#include "ChopstickGame.hh"
 
 int ChopstickGame::startGame() {
   // p1 is attacker, p2 is defender
@@ -91,8 +31,6 @@ int ChopstickGame::startGame() {
       cout << "SURRENDER IN " << turn << "TURNS\n";
       p2->victory();
       p1->defeat();
-      delete p1;
-      delete p2;
       return turn % 2 + 1;
     }
 
@@ -102,8 +40,6 @@ int ChopstickGame::startGame() {
       totturn += turn;
       p1->victory();
       p2->defeat();
-      delete p1;
-      delete p2;
       return (turn + 1) % 2 + 1;
     }
     temp = p1;
@@ -111,8 +47,6 @@ int ChopstickGame::startGame() {
     p2 = temp;
 
     if (turn > MAXTURN * 2) {
-      delete p1;
-      delete p2;
       return 0;
     }
   }
