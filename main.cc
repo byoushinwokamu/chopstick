@@ -32,9 +32,9 @@ int main(int argv, char **argc) {
   for (int i = 0; i < gamecount; i++) {
     game.resetGame();
     wincount[game.startGame()]++;
-    if ((i + 1) % 10000 == 0) {
+    if ((i + 1) % 100 == 0) {
       cout << "Game " << i + 1 << '\n';
-      cout << "Avg turn " << game.getTotTurn() / 10000.0 << '\n';
+      cout << "Avg turn " << game.getTotTurn() / 100.0 << '\n';
     }
   }
 

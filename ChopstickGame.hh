@@ -14,9 +14,13 @@ public:
   Player *p2;
   int startGame();
   void endGame();
-  long long getTotTurn() const { return totturn; }
-  void resetGame() {
+  long long getTotTurn() {
+    auto t = totturn;
     totturn = 0;
+    return t;
+  }
+  void resetGame() {
+    turn = 0;
     p1->reset();
     p2->reset();
   }

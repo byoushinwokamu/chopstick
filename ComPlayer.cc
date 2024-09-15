@@ -68,11 +68,12 @@ Action ComPlayer::play(Status &st) {
     else
       act_prob[i] = (i ? act_prob[i - 1] : 0) + 1 + prob[weIdx + i];
   }
-  // if (act_prob[7] == 0) {
-  //   // cout << "I surrender.." << turncount << "\n";
-  //   act.action = SURRENDER;
-  //   return act;
-  // }
+  if (act_prob[7] == 0) {
+    // cout << "I surrender.." << turncount << "\n";
+    act.action = SURRENDER;
+    tlog.push_back(st);
+    return act;
+  }
 
   // get random result
   uniform_int_distribution<long long> dis(0, act_prob[7]);

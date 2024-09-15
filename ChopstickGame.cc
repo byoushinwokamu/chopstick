@@ -28,7 +28,8 @@ int ChopstickGame::startGame() {
       p1->splitHand(act.splitleft);
     }
     if (act.action == SURRENDER) {
-      cout << "SURRENDER IN " << turn << "TURNS\n";
+      // cout << "SURRENDER IN " << turn << "TURNS\n";
+      totturn += turn;
       p2->victory();
       p1->defeat();
       return turn % 2 + 1;
