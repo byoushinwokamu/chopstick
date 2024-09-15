@@ -1,7 +1,7 @@
 CXX = g++
 CFLAGS = -std=c++17 -g
 
-OBJ = game.o ManPlayer.o ComPlayer.o
+OBJ = main.o ChopstickGame.o ManPlayer.o ComPlayer.o
 TARGET = game 
 
 $(TARGET): $(OBJ)

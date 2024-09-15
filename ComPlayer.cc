@@ -1,24 +1,31 @@
 #include "ComPlayer.hh"
 
-ComPlayer::ComPlayer(char *filename, bool printTurn) {
+ComPlayer::ComPlayer(char *filename, bool printTurn) : printTurn(printTurn) {
+  cout << "try to load from " << filename << endl;
+  // load data
   ifstream fin(filename);
   datafile = filename;
   if (!fin.is_open()) {
     cout << "Can't load data from " << filename << endl;
     exit(0);
   }
-  fin >> *this;
-  this->printTurn = printTurn;
+  // fin >> *this;
+  for (int i = 0; i < 1568; i++)
+    fin >> prob[i];
 }
 
 ComPlayer::~ComPlayer() {
+  cout << "try to save to " << datafile << endl;
+  // save data
   ofstream fout(datafile);
   if (!fout.is_open()) {
-    cout << "Failed to save data\n";
+    // cout << datafile;
+    cout << " save failed\n";
+    // cout << "Failed to save data to " << datafile << '\n';
   } else {
     for (int i = 0; i < 196; i++) {
       for (int j = 0; j < 8; j++) {
-        fout << this->weight[i].action[j] << ' ';
+        fout << this->prob[i] << ' ';
       }
       fout << '\n';
     }
@@ -28,16 +35,21 @@ ComPlayer::~ComPlayer() {
 Action ComPlayer::play(Status &st) {
   Action act;
 
+  // get index(0*8~195*8)
   int weIdx = getWeightIndex(st);
   if (printTurn)
     cout << '\n';
+
+  // if prev action was invalid, update weight data to invalid
   if (prevturn == st.turn) {
     if (printTurn)
       cout << "$$$$$tried to invalid action$$$$$\n";
-    weight[weIdx].action[prevAction] = INVALIDACT;
+    prob[weIdx + prevAction] = INVALIDACT;
     turncount--;
+    tlog.erase(tlog.end() - 1);
   }
 
+  // print turn stat
   if (printTurn) {
     cout << "$$ Turn " << st.turn << " $$\n";
     cout << "  Com: " << st.myHand[0] << " / " << st.myHand[1] << '\n';
@@ -49,20 +61,19 @@ Action ComPlayer::play(Status &st) {
   mt19937 gen(rd());
 
   // calculate probability with weight
-  long long act_prob[8];
+  unsigned int act_prob[8];
   for (int i = 0; i < 8; i++) {
-    if (weight[weIdx].action[i] == INVALIDACT ||
-        weight[weIdx].action[i] == DEFEATACT)
+    if (prob[weIdx + i] == INVALIDACT || prob[weIdx + i] == DEFEATACT)
       act_prob[i] = (i ? act_prob[i - 1] : 0);
     else
-      act_prob[i] =
-          (i ? act_prob[i - 1] : 0) + INT32_MAX + weight[weIdx].action[i];
+      act_prob[i] = (i ? act_prob[i - 1] : 0) + 1 + prob[weIdx + i];
   }
-  // if (act_prob[7] == 0) {
-  //   // cout << "I surrender.." << turncount << "\n";
-  //   act.action = SURRENDER;
-  //   return act;
-  // }
+  if (act_prob[7] == 0) {
+    // cout << "I surrender.." << turncount << "\n";
+    act.action = SURRENDER;
+    tlog.push_back(st);
+    return act;
+  }
 
   // get random result
   uniform_int_distribution<long long> dis(0, act_prob[7]);
@@ -81,25 +92,44 @@ Action ComPlayer::play(Status &st) {
 
   // return act
   prevturn = st.turn;
-  tlog[turncount++] = {weIdx, i};
+  tlog.push_back(st);
   return act;
 }
 
 int ComPlayer::getWeightIndex(Status &st) {
-  return conversion[st.myHand[LEFT]][st.myHand[RIGHT]] +
-         conversion[st.enemyHand[LEFT]][st.enemyHand[RIGHT]] * 14;
+  int mh = conversion[st.myHand[LEFT]][st.myHand[RIGHT]];
+  int eh = conversion[st.enemyHand[LEFT]][st.enemyHand[RIGHT]] * 14;
+  if (mh == -1 || eh == -8) {
+    cout << "invalid index\n";
+    return -1;
+  }
+  return (mh + eh) * 8;
 }
 
 void ComPlayer::victory() {
-  for (int i = 0; i < turncount; i++) {
-    weight[tlog[i].stat].action[tlog[i].acti] += 2000 * i;
+  for (auto i : tlog) {
+    // prob[getWeightIndex(tlog[i])] += STUDYCOEFF * i;
+    if (prob[getWeightIndex(i)] < 253 - STUDYCOEFF)
+      prob[getWeightIndex(i)] += STUDYCOEFF;
+    else
+      prob[getWeightIndex(i)] = 253;
   }
 }
 
 void ComPlayer::defeat() {
-  for (int i = 0; i < turncount; i++) {
-    weight[tlog[i].stat].action[tlog[i].acti] -= 2000 * i;
+  for (auto i : tlog) {
+    // weight[getWeightIndex(tlog[i])] -= STUDYCOEFF * i;
+    if (prob[getWeightIndex(i)] >= STUDYCOEFF)
+      prob[getWeightIndex(i)] -= STUDYCOEFF;
+    else
+      prob[getWeightIndex(i)] = 0;
   }
 }
 
 void ComPlayer::draw() {}
+
+void ComPlayer::reset() {
+  this->Player::reset();
+  prevAction = -1;
+  turncount = 0;
+}
