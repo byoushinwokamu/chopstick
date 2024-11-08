@@ -1,9 +1,11 @@
 #ifndef __PLAYER_H__
 #define __PLAYER_H__
+
 #include "Common.hh"
 
 class Player {
-private:
+protected:
+  int playernum;
   int hand[2] = {1, 1};
   void swapHand() {
     if (hand[RIGHT] < hand[LEFT]) {
@@ -25,9 +27,9 @@ public:
     swapHand();
   }
   void splitHand(int lefthand) {
-    int tot = hand[0] + hand[1];
-    hand[0] = lefthand;
-    hand[1] = tot - lefthand;
+    int tot = hand[LEFT] + hand[RIGHT];
+    hand[LEFT] = lefthand;
+    hand[RIGHT] = tot - lefthand;
     swapHand();
   }
   bool isAlive() { return hand[0] + hand[1] != 0; }
@@ -35,7 +37,7 @@ public:
   virtual void victory() {}
   virtual void defeat() {}
   virtual void draw() {}
-  void reset() { hand[LEFT] = 1, hand[RIGHT] = 1; }
+  void reset() { prevturn = 0, hand[LEFT] = 1, hand[RIGHT] = 1; }
 };
 
 #endif

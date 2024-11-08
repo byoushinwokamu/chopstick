@@ -15,7 +15,7 @@ Action ManPlayer::play(Status &st) {
     cout << "** Turn " << st.turn << " **\n";
     cout << "Enemy: " << st.enemyHand[0] << " / " << st.enemyHand[1] << '\n';
     cout << "  You: " << st.myHand[0] << " / " << st.myHand[1] << '\n';
-    cout << "Attack(a[l/r][l/r]) or Split(s[lefthand][righthand])? ";
+    cout << "Attack( a[l/r][l/r] ) or Split( s[lefthand][righthand] )? ";
     cin >> actstr;
 
     switch (actstr[0]) {

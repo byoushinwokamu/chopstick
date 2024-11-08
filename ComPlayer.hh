@@ -1,3 +1,6 @@
+#ifndef __CPLAYER_H__
+#define __CPLAYER_H__
+
 #include "Player.hh"
 
 class Player;
@@ -35,13 +38,6 @@ public:
   virtual void defeat();
   virtual void draw();
   virtual void reset();
-
-  // friend std::istream &operator>>(std::istream &in, ComPlayer &cpd) {
-  //   for (int i = 0; i < 196; i++) {
-  //     for (int j = 0; j < 8; j++) {
-  //       in >> cpd.prob[i];
-  //     }
-  //   }
-  //   return in;
-  // }
 };
+
+#endif

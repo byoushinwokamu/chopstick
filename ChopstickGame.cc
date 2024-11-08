@@ -7,14 +7,14 @@ int ChopstickGame::startGame() {
   Action act;
   turn = 0;
   while (true) {
-    // init phase
+    /* init phase */
     st.turn = ++turn;
     st.myHand[0] = p1->getHand(LEFT);
     st.myHand[1] = p1->getHand(RIGHT);
     st.enemyHand[0] = p2->getHand(LEFT);
     st.enemyHand[1] = p2->getHand(RIGHT);
 
-    // play phase
+    /* play phase */
     // check validity of action
     do {
       act = p1->play(st);
@@ -35,7 +35,7 @@ int ChopstickGame::startGame() {
       return turn % 2 + 1;
     }
 
-    // end phase
+    /* end phase */
     if (!p2->isAlive()) {
       // cout << "GAME SET IN " << turn << "TURNS\n";
       totturn += turn;

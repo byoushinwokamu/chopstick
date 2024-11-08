@@ -19,10 +19,11 @@ typedef struct {
   int splitleft;
 } Action;
 
-typedef struct {
+class Status {
+public:
   int turn;
   int enemyHand[2];
   int myHand[2];
-} Status;
+};
 
 #endif
